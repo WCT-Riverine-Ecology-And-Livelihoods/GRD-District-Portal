@@ -22,16 +22,16 @@ ui <- dashboardPage(
   fluidRow(
     column(width = 8,
            box(width = NULL, solidHeader = TRUE, 
-               leafletOutput("mymap", height = 600))
+               leafletOutput("mymap", height = 500))
            ),
     column(width = 4,
-           box(width = NULL,
+           box(width = NULL, 
            p(
              "The purpose of this app is to view the population estimate of Ganges River Dolphins per district. The data ranges from 2013 to 2023.
               Users can click on a district in the map to view the population estimate of Ganges River Dolphins for each river flowing through that district."
            ),
-           uiOutput("graph"),
-           actionButton("reset", "Reset")
+           textInput(inputId = "selecteddistrict", label = "Selected district:", value = ""),
+           plotlyOutput("graph", height = 300)
            )
     )
   )
@@ -39,6 +39,7 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output, session) {
+  data <- reactiveValues(clickedShape = NULL) 
   ##Output - Map
   output$mymap <- renderLeaflet({
       leaflet() %>%
@@ -49,6 +50,37 @@ server <- function(input, output, session) {
                   layerId = ~DISTRICT,
                   label = ~paste("District:" , DISTRICT,
                                  "<br>State:", STATE) %>% lapply(htmltools::HTML)) 
+  })
+  
+  observeEvent(input$mymap_shape_click, { ##for updating graph on click of polygon in map
+    data$clickedShape <- input$mymap_shape_click
+    updateTextInput(inputId = "selecteddistrict", value = paste(unlist(data$clickedShape)[1]))
+    selected_district_df <- reactive(grd_shp_filtered %>%
+                                  filter(DISTRICT %in% input$mymap_shape_click$id))
+    leafletProxy("mymap") %>% 
+    addPolygons(data = grd_shp_filtered,
+                  weight = 1.5,
+                  layerId = ~DISTRICT,
+                  label = ~paste("District:" , DISTRICT,
+                                 "<br>State:", STATE) %>% lapply(htmltools::HTML)) %>%  
+    addPolygons(data = selected_district_df(),
+                fillColor = "orange",
+                fillOpacity = 0.8,
+                layerId = ~DISTRICT,
+                label = ~paste("District:" , DISTRICT,
+                               "<br>State:", STATE) %>% lapply(htmltools::HTML))
+  })
+  
+  selected_district_table <- reactive(grd_table %>%
+                                      filter(DISTRICT %in% input$mymap_shape_click$id))
+  output$graph <- renderPlotly({
+    selected_district_table() %>%
+      plot_ly() %>%
+      add_trace(x = ~river, y = ~GRD_pop, type = 'bar', width = 0.3, color = "orange") %>%
+      layout(
+        xaxis = list(title = "River"),
+        yaxis = list(title = "GRD Population Estimate")
+      )
   })
 }
 
