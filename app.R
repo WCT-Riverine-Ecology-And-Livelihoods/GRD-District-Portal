@@ -47,11 +47,12 @@ ui <- page_navbar(
                   min_height = 500,
                   p("Please select a district on the map below"),
                   leafletOutput("mymap"),
+                  layout_columns(
                   textInput(inputId = "selecteddistrict", label = "Selected district:", value = ""),
                   selectizeInput(inputId = "river",
                                  label = "Select river(s):",
                                  choices = character(0),
-                                 multiple = T)
+                                 multiple = T))
                   )),
               layout_columns(
                 card(
@@ -59,14 +60,10 @@ ui <- page_navbar(
                   card_header("Graph"),
                   card_body(
                        min_height = 250,
+                       max_height = 250,
                        plotlyOutput("graph"))),
-                card(
-                  full_screen = TRUE,
-                  card_header("Table"),
-                  card_body(
-                    min_height = 250,
-                    DT::dataTableOutput("table"))),
-                col_widths = c(12, 12) #meaning each of the cards will occupy that entire 12-
+                uiOutput("valueboxes"),
+                col_widths = c(12)
               )
             )),
   nav_panel(title = "Instructions on use", p("Content to be added"))
@@ -114,9 +111,59 @@ server <- function(input, output, session) {
 
     selected_district_table <- reactive(grd_table %>%
                                         filter(district %in% input$mymap_shape_click$id))
+    
     selected_river_table <- reactive(selected_district_table() %>%
                                      filter(river %in% input$river))
-
+    
+    df_river1 <- reactive(selected_river_table() %>%
+                          filter(river %in% unlist(input$river)[1]) %>% arrange(desc(date)))
+    
+    df_river2 <- reactive(selected_river_table() %>%
+                          filter(river %in% unlist(input$river)[2]) %>% arrange(desc(date)))
+    
+    df_river3 <- reactive(selected_river_table() %>%
+                          filter(river %in% unlist(input$river)[3]) %>% arrange(desc(date)))
+    
+    vbs <- reactive(
+      list(
+      value_box(
+      title = "Population estimate",
+      value = df_river1()$pop_estimate[1],
+      theme = "primary", 
+      max_height = "100px"
+    ), 
+    value_box(
+      title = "Distance covered",
+      value = df_river1()$km[1],
+      theme = "secondary",
+      max_height = "100px"
+    ),
+    value_box(
+      title = "Population estimate",
+      value = df_river2()$pop_estimate[1],
+      theme = "primary",
+      max_height = "100px"
+    ), 
+    value_box(
+      title = "Distance covered",
+      value = df_river2()$km[1],
+      theme = "secondary",
+      max_height = "100px"
+    ),
+    value_box(
+      title = "Population estimate",
+      value = df_river3()$pop_estimate[1],
+      theme = "primary",
+      max_height = "100px"
+    ), 
+    value_box(
+      title = "Distance covered",
+      value = df_river3()$km[1],
+      theme = "secondary",
+      max_height = "100px"
+    )
+    ))
+    
     ##Output - Graph
     output$graph <- renderPlotly({
         req(input$river)
@@ -146,12 +193,24 @@ server <- function(input, output, session) {
                          tickangle = -90)
           )
       })
-
-    ##Output - Data table
-    output$table <- DT::renderDataTable({
-      req(input$river) ##req will execute the render table only when input$river is not equal to NULL
-      selected_district_table() %>% filter(river %in% unlist(input$river))
-})
+    
+    output$valueboxes <- renderUI({
+      if(length(unlist(input$river)) == 1){
+        layout_columns(
+            vbs()[[1]], vbs()[[2]],
+            col_widths = c(6, 6))
+      }
+      else if(length(unlist(input$river)) == 2){
+        layout_columns(
+        vbs()[[1]], vbs()[[2]], vbs()[[3]], vbs()[[4]],
+        col_widths = c(6, 6, 6, 6))
+      } 
+      else if(length(unlist(input$river)) == 3){
+        layout_columns(
+        vbs()[[1]], vbs()[[2]], vbs()[[3]], vbs()[[4]], vbs()[[5]], vbs()[[6]],
+        col_widths = c(6, 6, 6, 6, 6, 6))
+      }
+      })
 }
 
 shinyApp(ui, server)
