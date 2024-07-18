@@ -8,20 +8,29 @@ library(anytime)
 
 ##Load and prepare the data
 df <- read.csv("Data/Bihar_GRD_districts_database.csv")
-grd_table <- df %>% filter(date != "NA") %>%
-             select(!c(wkt_geom, ST_NM, ST_CEN_CD, DT_CEN_CD, censuscode))
+grd_table <- df %>% filter(date != "NA") 
+grd_table$district[grd_table$district == "Saran "] <- "Saran"
 str(grd_table)
 addFormats("%d-%m-%Y")
 grd_table$date <- anydate(grd_table$date)
-grd_table$encounter_rate <- grd_table$pop_estimate/grd_table$km
-grd_table$sd <- (grd_table$pop_estimate - grd_table$lower_range)/1.965
-grd_table$sd_km <- grd_table$sd/grd_table$km
+grd_table$encounter_rate <- round(grd_table$pop_estimate/grd_table$km, 2)
+grd_table$sd <- round((grd_table$pop_estimate - grd_table$lower_range)/1.965,2)
+grd_table$sd_km <- round(grd_table$sd/grd_table$km, 2)
 
 bihar_shp <- st_read("Data/Districts_Bihar.shp", stringsAsFactors = F)
 bihar_simple <- rmapshaper::ms_simplify(bihar_shp, keep = 0.05, keep_shapes = TRUE) ##make the leaflet loading faster
 
+dt_table <- grd_table %>% select(c(district, river, year, survey_date, pop_estimate,
+                                   lower_range, upper_range, encounter_rate, sd_km, km, 
+                                   status, typepop_survey, data_source))
+colnames(dt_table) <- c("District", "River", "Year", "Survey date", "Population size",
+                        "Lower range", "Upper range", "Encounter rate", "SD per km",
+                        "km", "Status", "Survey method", "Data source"
+                        )
+dt_table <- data.frame(dt_table, check.names = FALSE) ##uncheck check.names to allow spaces in column names
+
 ui <- page_navbar(
-  title = "Ganges River Dolphin District Portal",
+  title = "Ganges River Dolphin Population Tracker",
   theme = bs_theme(version = 5, bootswatch = "zephyr")|> ##setting the primary color of "zephyr" bootswatch theme manually
     bslib::bs_add_rules(
       rules = "
@@ -66,7 +75,8 @@ ui <- page_navbar(
                 col_widths = c(12)
               )
             )),
-  nav_panel(title = "Instructions on use", p("Content to be added"))
+  nav_panel(title = "Database", 
+            DT::dataTableOutput("table"))
   )
 
 
@@ -124,43 +134,58 @@ server <- function(input, output, session) {
     df_river3 <- reactive(selected_river_table() %>%
                           filter(river %in% unlist(input$river)[3]) %>% arrange(desc(date)))
     
+    df_river4 <- reactive(selected_river_table() %>%
+                            filter(river %in% unlist(input$river)[4]) %>% arrange(desc(date)))
+    
     vbs <- reactive(
       list(
       value_box(
-      title = "Population estimate",
-      value = df_river1()$pop_estimate[1],
+      title = tags$p(paste(unlist(input$river)[1], "population -", df_river1()$year_time[1], sep = " "), style = "font-size: 100%;"),
+      value = tags$p(paste(df_river1()$pop_estimate[1], "±", df_river1()$sd[1],  sep = " "), style = "font-size: 100%;"),
       theme = "primary", 
-      max_height = "100px"
+      max_height = "80px"
     ), 
     value_box(
-      title = "Distance covered",
-      value = df_river1()$km[1],
+      title = tags$p("Distance covered", style = "font-size: 100%;"),
+      value = tags$p(paste(df_river1()$km[1], "km", sep = " "), style = "font-size: 100%;"),
       theme = "secondary",
-      max_height = "100px"
+      max_height = "80px"
     ),
     value_box(
-      title = "Population estimate",
-      value = df_river2()$pop_estimate[1],
+      title = tags$p(paste(unlist(input$river)[2], "population -", df_river2()$year_time[1], sep = " "), style = "font-size: 100%;"),
+      value = tags$p(paste(df_river2()$pop_estimate[1], "±", df_river2()$sd[1],  sep = " "), style = "font-size: 100%;"),
       theme = "primary",
-      max_height = "100px"
+      max_height = "80px"
     ), 
     value_box(
-      title = "Distance covered",
-      value = df_river2()$km[1],
+      title = tags$p("Distance covered", style = "font-size: 100%;"),
+      value = tags$p(paste(df_river2()$km[1], "km", sep = " "), style = "font-size: 100%;"),
       theme = "secondary",
-      max_height = "100px"
+      max_height = "80px"
     ),
     value_box(
-      title = "Population estimate",
-      value = df_river3()$pop_estimate[1],
+      title = tags$p(paste(unlist(input$river)[3], "population -", df_river3()$year_time[1], sep = " "), style = "font-size: 100%;"),
+      value = tags$p(paste(df_river3()$pop_estimate[1], "±", df_river3()$sd[1],  sep = " "), style = "font-size: 100%;"),
       theme = "primary",
-      max_height = "100px"
+      max_height = "80px"
     ), 
     value_box(
-      title = "Distance covered",
-      value = df_river3()$km[1],
+      title = tags$p("Distance covered", style = "font-size: 100%;"),
+      value = tags$p(paste(df_river3()$km[1], "km", sep = " "), style = "font-size: 100%;"),
       theme = "secondary",
-      max_height = "100px"
+      max_height = "80px"
+    ),
+    value_box(
+      title = tags$p(paste(unlist(input$river)[4], "population -", df_river4()$year_time[1], sep = " "), style = "font-size: 100%;"),
+      value = tags$p(paste(df_river4()$pop_estimate[1], "±", df_river4()$sd[1],  sep = " "), style = "font-size: 100%;"),
+      theme = "primary",
+      max_height = "80px"
+    ), 
+    value_box(
+      title = tags$p("Distance covered", style = "font-size: 100%;"),
+      value = tags$p(paste(df_river4()$km[1], "km", sep = " "), style = "font-size: 100%;"),
+      theme = "secondary",
+      max_height = "80px"
     )
     ))
     
@@ -183,14 +208,18 @@ server <- function(input, output, session) {
                    type = 'scatter', 
                    mode = 'lines+markers', 
                    color = ~river,
-                   error_y = list(array = ~sd_km)) %>%
+                   error_y = list(array = ~sd_km),
+                   hovertemplate = paste('Year: %{x|%Y}',
+                                         '<br>Encounter rate: %{y}<extra></extra>')) %>%
            layout(
-            yaxis = list(title = "Encounter rate <br> (no. of individuals/km)"),
-            xaxis = list(title = "Date of survey",
+            yaxis = list(title = "Encounter rate <br> (no. of dolphins/km)"),
+            xaxis = list(
+                         title = "Survey Year",
                          tickvals = tickvals,
                          ticktext = ticktext,
                          tickmode = "array",
-                         tickangle = -90)
+                         tickangle = -90),
+            legend = list(orientation = 'h', xanchor = "center", x = 0.5, y = -0.5)
           )
       })
     
@@ -209,8 +238,25 @@ server <- function(input, output, session) {
         layout_columns(
         vbs()[[1]], vbs()[[2]], vbs()[[3]], vbs()[[4]], vbs()[[5]], vbs()[[6]],
         col_widths = c(6, 6, 6, 6, 6, 6))
+      } else if(length(unlist(input$river)) == 4){
+        layout_columns(
+          vbs()[[1]], vbs()[[2]], vbs()[[3]], vbs()[[4]], vbs()[[5]], vbs()[[6]], vbs()[[7]], vbs()[[8]], 
+          col_widths = c(6, 6, 6, 6, 6, 6, 6, 6))
       }
       })
+    
+    output$table <- DT::renderDataTable({
+      if(is.null(input$selecteddistrict) == FALSE & isTruthy(input$river)){
+        dt_table %>% filter(District %in% unlist(input$selecteddistrict)) %>% arrange(River, Year)
+      } 
+      else if(isTruthy(input$selecteddistrict) & isTruthy(input$river)){
+        dt_table %>% filter(District %in% unlist(input$selecteddistrict)) %>%
+          filter(River %in% unlist(input$river)) %>% arrange(River, Year)
+      }
+      else {
+        dt_table %>% arrange(District, River, Year)
+      } ##isTruthy to find out if value is truthy i.e it is not FALSE, NULL, "" or an empty vector
+    })
 }
 
 shinyApp(ui, server)
