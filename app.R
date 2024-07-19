@@ -4,15 +4,14 @@ library(leaflet)
 library(plotly)
 library(sf)
 library(dplyr)
-library(anytime)
+library(lubridate)
 
 ##Load and prepare the data
 df <- read.csv("Data/Bihar_GRD_districts_database.csv")
 grd_table <- df %>% filter(date != "NA") 
 grd_table$district[grd_table$district == "Saran "] <- "Saran"
 str(grd_table)
-addFormats("%d-%m-%Y")
-grd_table$date <- anydate(grd_table$date)
+grd_table$date <- as.Date(grd_table$date, format = "%d-%m-%Y")
 grd_table$encounter_rate <- round(grd_table$pop_estimate/grd_table$km, 2)
 grd_table$sd <- round((grd_table$pop_estimate - grd_table$lower_range)/1.965,2)
 grd_table$sd_km <- round(grd_table$sd/grd_table$km, 2)
@@ -140,7 +139,7 @@ server <- function(input, output, session) {
     vbs <- reactive(
       list(
       value_box(
-      title = tags$p(paste(unlist(input$river)[1], "population -", df_river1()$year_time[1], sep = " "), style = "font-size: 100%;"),
+      title = tags$p(paste(unlist(input$river)[1], "population -", df_river1()$year[1], sep = " "), style = "font-size: 100%;"),
       value = tags$p(paste(df_river1()$pop_estimate[1], "±", df_river1()$sd[1],  sep = " "), style = "font-size: 100%;"),
       theme = "primary", 
       max_height = "80px"
@@ -152,7 +151,7 @@ server <- function(input, output, session) {
       max_height = "80px"
     ),
     value_box(
-      title = tags$p(paste(unlist(input$river)[2], "population -", df_river2()$year_time[1], sep = " "), style = "font-size: 100%;"),
+      title = tags$p(paste(unlist(input$river)[2], "population -", df_river2()$year[1], sep = " "), style = "font-size: 100%;"),
       value = tags$p(paste(df_river2()$pop_estimate[1], "±", df_river2()$sd[1],  sep = " "), style = "font-size: 100%;"),
       theme = "primary",
       max_height = "80px"
@@ -164,7 +163,7 @@ server <- function(input, output, session) {
       max_height = "80px"
     ),
     value_box(
-      title = tags$p(paste(unlist(input$river)[3], "population -", df_river3()$year_time[1], sep = " "), style = "font-size: 100%;"),
+      title = tags$p(paste(unlist(input$river)[3], "population -", df_river3()$year[1], sep = " "), style = "font-size: 100%;"),
       value = tags$p(paste(df_river3()$pop_estimate[1], "±", df_river3()$sd[1],  sep = " "), style = "font-size: 100%;"),
       theme = "primary",
       max_height = "80px"
@@ -176,7 +175,7 @@ server <- function(input, output, session) {
       max_height = "80px"
     ),
     value_box(
-      title = tags$p(paste(unlist(input$river)[4], "population -", df_river4()$year_time[1], sep = " "), style = "font-size: 100%;"),
+      title = tags$p(paste(unlist(input$river)[4], "population -", df_river4()$year[1], sep = " "), style = "font-size: 100%;"),
       value = tags$p(paste(df_river4()$pop_estimate[1], "±", df_river4()$sd[1],  sep = " "), style = "font-size: 100%;"),
       theme = "primary",
       max_height = "80px"
@@ -194,8 +193,8 @@ server <- function(input, output, session) {
         req(input$river)
         graph_df <- selected_river_table() %>% arrange(date)
         x_axis_breaks  <- seq(
-          from = min(graph_df$date), 
-          to = max(graph_df$date),
+          from = min(graph_df$date) %m-% years(1), 
+          to = max(graph_df$date) %m+% years(1),
           by = "1 year"
         )   
         
@@ -209,11 +208,13 @@ server <- function(input, output, session) {
                    mode = 'lines+markers', 
                    color = ~river,
                    error_y = list(array = ~sd_km),
-                   hovertemplate = paste('Year: %{x|%Y}',
+                   hovertemplate = paste('Survey date: %{x|%b-%Y}',
                                          '<br>Encounter rate: %{y}<extra></extra>')) %>%
            layout(
             yaxis = list(title = "Encounter rate <br> (no. of dolphins/km)"),
             xaxis = list(
+                         autorange = F,
+                         range = c(min(graph_df$date) %m-% years(1), max(graph_df$date) %m+% years(1)),
                          title = "Survey Year",
                          tickvals = tickvals,
                          ticktext = ticktext,
