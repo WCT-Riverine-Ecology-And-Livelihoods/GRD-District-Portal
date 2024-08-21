@@ -32,7 +32,7 @@ colnames(surveymethod_table) <- c("Survey method", "Interpretation of population
 surveymethod_table <- data.frame(surveymethod_table, check.names = FALSE) ##likewise uncheck for survey method table
 
 ui <- page_navbar(
-  title = "Ganges River Dolphin Population Tracker",
+  title = "Ganges River Dolphin Population Tracker: Bihar",
   theme = bs_theme(version = 5, bootswatch = "zephyr")|> ##setting the primary color of "zephyr" bootswatch theme manually
     bslib::bs_add_rules(
       rules = "
@@ -87,7 +87,7 @@ ui <- page_navbar(
             DT::dataTableOutput("table")),
   nav_panel(title = "About", 
             h4(strong("Description of the app")),
-            p("The Ganges River Dolphin Population Tracker app provides information on population size and trends for all districts and river stretches included in those districts, for Bihar. As forest divisions usually include one or more districts, 
+            p("The Ganges River Dolphin Population Tracker app provides information on population size and trends for all districts and river stretches included in those districts, for Bihar, where river dolphins are found. As forest divisions usually include one or more districts, 
               we believe that providing such information can provide critical support for conservation planning, management, threat mitigation, and action."), 
             p("We have regularly seen that river survey reports for species such as Ganges river dolphins do not provide information on district-wise population estimates. 
               Usually estimates or counts are provided for the entire river stretch or for stretches between specific reference points such as bridges or ghats. While this information is useful as general knowledge, 
@@ -99,16 +99,16 @@ ui <- page_navbar(
               estimated or minimum population size (with range), encounter rate (number of dolphins per km of river), the error associated with estimates 
               of population size per km (standard deviation or SD per km), dolphin population status (resident, seasonal visitor, small or extirpated), the survey method used, and the data sources and references."),
             h4(strong("Interpretation of data according to survey method")),
-            p("Boat-based surveys are the best methods to carry out river dolphin population estimation. Interview surveys, shore surveys, and opportunistic reports of dolphin presence should only be considered when:-"), 
+            p("Boat-based surveys are the best methods to carry out river dolphin population estimation. Interview surveys, shore surveys, and opportunistic reports of dolphin presence should only be considered when any of the following conditions prevail."), 
               tags$ol(
-              tags$li("Rivers are not navigable"),
-              tags$li("Very few dolphins likely to be present"),
-              tags$li("There is no possibility of conducting boat-based surveys due to lack of resources or capacity")
+              tags$li("Rivers are not navigable."),
+              tags$li("Very few dolphins are likely to be present."),
+              tags$li("There is no possibility of conducting boat-based surveys due to lack of resources or capacity.")
               ),
             p("If single-observer survey methods are used, upstream surveys are preferable because boat speeds are slower (boat moves against river flow direction) and 
               there is more time to detect surfacing dolphins. Downstream surveys (in the direction of river flow), in case of single-observer surveys, may tend to miss surfacing dolphins more than upstream surveys. 
               Estimates from single-observer survey methods are usually minimum counts and hence underestimates of the true population. However, if sighting distance and bearing data are available, it is possible to estimate population size closer to the true population using statistical analyses."),
-           p("Double-observer survey methods allow for estimation of uncertainty in population size, that may result from:-"),
+           p("Double-observer survey methods allow for estimation of uncertainty in population size, that may result from the two sources of bias listed below."),
            tags$ol(
              tags$li("Detection bias: not seeing all dolphins that surface, due to sighting conditions, observer attention, human error, etc."),
              tags$li("Availability bias: not seeing dolphins because they did not surface at the time of boat passage."),
@@ -151,7 +151,7 @@ ui <- page_navbar(
            h4(strong("Funding Support to REAL programme, Wildlife Conservation Trust")),
            p("BNP Paribas Foundation, Duleep Matthai Nature Conservation Trust, International Whaling Commission Small Cetacean Fund, Rohini Nilekani Philanthropies Foundation, DSP HMK Holdings Pvt. Ltd., Dolphin Quest."),
            h4(strong("Developed by")),
-           p("Riverine Ecosystems and Livelihoods programme, Wildlife Conservation Trust"),
+           p("Riverine Ecosystems and Livelihoods programme, Wildlife Conservation Trust."),
            h4(strong("Credits")),
            tags$ul(
              tags$li(strong("Conceptualization and data compilation:"), "Dr. Nachiket Kelkar"),
