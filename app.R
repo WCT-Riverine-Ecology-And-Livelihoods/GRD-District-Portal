@@ -41,6 +41,12 @@ ui <- page_navbar(
                     }
                     "
     ),
+  tags$head(
+    tags$style(HTML("
+      div.nopad .value-box-area {
+        padding: 0;
+      }
+    "))), ##to remove padding around the card body for value boxes
   nav_panel(title = "Trends",
             tags$head(
               tags$script(
@@ -55,9 +61,9 @@ ui <- page_navbar(
                 card_header(
                   "District and river selection"),
                 card_body(
-                  min_height = 500,
+                  min_height = 400,
                   p("Please select a district on the map below"),
-                  leafletOutput("mymap"),
+                  leafletOutput("mymap", height = 250),
                   layout_columns(
                   textInput(inputId = "selecteddistrict", label = "Selected district:", value = ""),
                   selectizeInput(inputId = "river",
@@ -219,6 +225,7 @@ server <- function(input, output, session) {
       list(
       value_box(
       title = NULL,
+      class = "nopad",
       value = tags$p(paste(paste0(unlist(input$river)[1], ","), df_river1()$year[1], ":", 
                            df_river1()$pop_estimate[1], "±", round(df_river1()$sd[1], 0), "dolphins"), 
                      style = "font-size: 100%;"),
@@ -227,12 +234,14 @@ server <- function(input, output, session) {
     ), 
     value_box(
       title = NULL,
+      class = "nopad",
       value = tags$p(paste("Distance covered", ":", df_river1()$km[1], "km"), style = "font-size: 100%;"),
       theme = "secondary",
       max_height = "80px"
     ),
     value_box(
       title = NULL,
+      class = "nopad",
       value = tags$p(paste(paste0(unlist(input$river)[2], ","), df_river2()$year[1], ":", 
                            df_river2()$pop_estimate[1], "±", round(df_river2()$sd[1], 0), "dolphins"), 
                      style = "font-size: 100%;"),
@@ -241,12 +250,14 @@ server <- function(input, output, session) {
     ), 
     value_box(
       title = NULL,
+      class = "nopad",
       value = tags$p(paste("Distance covered", ":", df_river2()$km[1], "km"), style = "font-size: 100%;"),
       theme = "secondary",
       max_height = "80px"
     ),
     value_box(
       title = NULL,
+      class = "nopad",
       value = tags$p(paste(paste0(unlist(input$river)[3], ","), df_river3()$year[1], ":", 
                            df_river3()$pop_estimate[1], "±", round(df_river3()$sd[1],0), "dolphins"), 
                      style = "font-size: 100%;"),
@@ -255,12 +266,14 @@ server <- function(input, output, session) {
     ), 
     value_box(
       title = NULL,
+      class = "nopad",
       value = tags$p(paste("Distance covered", ":", df_river3()$km[1], "km"), style = "font-size: 100%;"),
       theme = "secondary",
       max_height = "80px"
     ),
     value_box(
       title = NULL,
+      class = "nopad",
       value = tags$p(paste(paste0(unlist(input$river)[4], ","), df_river4()$year[1], ":", 
                            df_river4()$pop_estimate[1], "±", round(df_river4()$sd[1],0), "dolphins"), 
                      style = "font-size: 100%;"),
@@ -269,6 +282,7 @@ server <- function(input, output, session) {
     ), 
     value_box(
       title = NULL,
+      class = "nopad",
       value = tags$p(paste("Distance covered", ":", df_river4()$km[1], "km"), style = "font-size: 100%;"),
       theme = "secondary",
       max_height = "80px"
@@ -313,23 +327,25 @@ server <- function(input, output, session) {
     
     output$valueboxes <- renderUI({
       if(length(unlist(input$river)) == 1){
-        layout_columns(
-            vbs()[[1]], vbs()[[2]],
-            col_widths = c(6, 6))
+        layout_column_wrap(
+          width = 1/2, ##width = 1/n where n is the number of columns in the grid
+          vbs()[[1]], vbs()[[2]])
       }
       else if(length(unlist(input$river)) == 2){
-        layout_columns(
-        vbs()[[1]], vbs()[[2]], vbs()[[3]], vbs()[[4]],
-        col_widths = c(6, 6, 6, 6))
+        layout_column_wrap(
+          width = 1/2,
+          vbs()[[1]], vbs()[[2]], vbs()[[3]], vbs()[[4]])
       } 
       else if(length(unlist(input$river)) == 3){
-        layout_columns(
-        vbs()[[1]], vbs()[[2]], vbs()[[3]], vbs()[[4]], vbs()[[5]], vbs()[[6]],
-        col_widths = c(6, 6, 6, 6, 6, 6))
+        layout_column_wrap(
+        width = 1/2,
+        vbs()[[1]], vbs()[[2]], vbs()[[3]], 
+        vbs()[[4]], vbs()[[5]], vbs()[[6]])
       } else if(length(unlist(input$river)) == 4){
-        layout_columns(
-          vbs()[[1]], vbs()[[2]], vbs()[[3]], vbs()[[4]], vbs()[[5]], vbs()[[6]], vbs()[[7]], vbs()[[8]], 
-          col_widths = c(6, 6, 6, 6, 6, 6, 6, 6))
+        layout_column_wrap(
+          width = 1/2,
+          vbs()[[1]], vbs()[[2]], vbs()[[3]], vbs()[[4]], 
+          vbs()[[5]], vbs()[[6]], vbs()[[7]], vbs()[[8]])
       }
       })
     
