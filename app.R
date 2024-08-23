@@ -33,8 +33,8 @@ surveymethod_table <- data.frame(surveymethod_table, check.names = FALSE) ##like
 
 ui <- page_navbar(
   title = "Ganges River Dolphin Population Tracker: Bihar",
-  theme = bs_theme(version = 5, bootswatch = "zephyr")|> 
-    bslib::bs_add_rules( ##adding most css rules for different elements here 
+  theme = bs_theme(version = 5, bootswatch = "zephyr")|>
+    bslib::bs_add_rules( ##adding most css rules for different elements here
       rules = "
       .navbar {font-family: Arial; font-size: 20px;} /* change font of nav bar */
       .navbar-default .navbar-nav {font-family: Arial; font-size: 15px;} /* change font of navbar nav */
