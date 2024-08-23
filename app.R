@@ -93,6 +93,9 @@ ui <- page_navbar(
               Usually estimates or counts are provided for the entire river stretch or for stretches between specific reference points such as bridges or ghats. While this information is useful as general knowledge, 
               its utility becomes limited for divisional forest offices. If such data are made available at the district or division level, monitoring of trends and impact of conservation measures taken for 
               the habitat and populations can be more impactful and possible within the administrative jurisdiction of divisional offices. This app addresses this important gap."),
+            p("The app incorporates population data for all districts in the rivers of Bihar where Ganges river dolphins are found. It has been developed by the Riverine Ecosystems and Livelihoods programme, 
+              Wildlife Conservation Trust, who have been monitoring Ganges river dolphins in all rivers of Bihar for nearly two decades. These data are intended to support the Department of Environment, Forests, and Climate Change, 
+              Government of Bihar, and all divisional forest officials in the conservation and management of Ganges river dolphin populations and river habitats in Bihar."),
             p("In the app, users can select a district by clicking it on the map view and select rivers with stretches falling within that district, to explore trends in the number of dolphins recorded per km of river) as well as 
               the latest available population estimates for that stretch. The app also provides access to the Ganges river dolphin data compiled by us in the 'Database' tab. 
               Users can also view the complete dataset when no district or river is selected, or access specific data for the selected district and rivers. The dataset includes information on survey year and month (last available), 
