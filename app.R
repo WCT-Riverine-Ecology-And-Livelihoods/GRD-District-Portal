@@ -33,26 +33,31 @@ surveymethod_table <- data.frame(surveymethod_table, check.names = FALSE) ##like
 
 ui <- page_navbar(
   title = "Ganges River Dolphin Population Tracker: Bihar",
-  theme = bs_theme(version = 5, bootswatch = "zephyr")|> ##setting the primary color of "zephyr" bootswatch theme manually
-    bslib::bs_add_rules(
+  theme = bs_theme(version = 5, bootswatch = "zephyr")|> 
+    bslib::bs_add_rules( ##adding most css rules for different elements here 
       rules = "
-                    .navbar.navbar-default {
-                        background-color: $primary !important;
-                    }
-                    "
+      .navbar {font-family: Arial; font-size: 20px;} /* change font of nav bar */
+      .navbar-default .navbar-nav {font-family: Arial; font-size: 15px;} /* change font of navbar nav */
+      .navbar.navbar-default {background-color: $primary !important;} /* set the primary color of zephyr bootswatch theme */
+      .body {font-family: Arial, sans-serif; background-color: #f5f5f5;} /* change font family of body text and background color */
+      h4 {margin-top: 0px; margin-bottom: 0px;}
+      p {margin-bottom: 0px;}
+      ol {margin-bottom: 0px;}
+      p + h4 {margin-top: 0px;}
+      "
     ),
   tags$head(
-    tags$style(HTML("
-      div.nopad .value-box-area {
+    tags$style(HTML(" 
+      div.nopad .value-box-area {  /* remove padding around the card body for value boxes */
         padding: 0;
       }
-    "))), ##to remove padding around the card body for value boxes
+    "))),
   nav_panel(title = "Trends",
             tags$head(
               tags$script(
                 HTML('$(document).ready(function() {
                        $(".navbar .container-fluid")
-                         .append("<img id = \'myImage\' src=\'WCTMainLogoWhite_edited.png\' align=\'right\' height = \'57.5px\'>"  );
+                         .append("<img id = \'myImage\' src=\'WCTMainLogoWhite_edited.png\' align=\'right\' height = \'60px\'>"  );
                       });')),
               tags$style(
                 HTML('@media (max-width:992px) { #myImage { position: fixed; right: 10%; top: 0.5%; }}'))),
@@ -108,13 +113,13 @@ ui <- page_navbar(
               tags$li("Very few dolphins are likely to be present."),
               tags$li("There is no possibility of conducting boat-based surveys due to lack of resources or capacity.")
               ),
-            p("If single-observer survey methods are used, upstream surveys are preferable because boat speeds are slower (boat moves against river flow direction) and 
+           p("If single-observer survey methods are used, upstream surveys are preferable because boat speeds are slower (boat moves against river flow direction) and 
               there is more time to detect surfacing dolphins. Downstream surveys (in the direction of river flow), in case of single-observer surveys, may tend to miss surfacing dolphins more than upstream surveys. 
               Estimates from single-observer survey methods are usually minimum counts and hence underestimates of the true population. However, if sighting distance and bearing data are available, it is possible to estimate population size closer to the true population using statistical analyses."),
            p("Double-observer survey methods allow for estimation of uncertainty in population size, that may result from the two sources of bias listed below."),
            tags$ol(
              tags$li("Detection bias: not seeing all dolphins that surface, due to sighting conditions, observer attention, human error, etc."),
-             tags$li("Availability bias: not seeing dolphins because they did not surface at the time of boat passage."),
+             tags$li("Availability bias: not seeing dolphins because they did not surface at the time of boat passage.")
              ),
            p("If double-observer surveys are conducted in the downstream direction, dolphins missed by one team may still be detected by another team, making the surveys highly efficient as well as reasonably accurate in estimation of population size."),
            p("The table below provides a quick guide to interpret river dolphin population estimates reported based on different survey methods."),
@@ -152,19 +157,25 @@ ui <- page_navbar(
            p("Sinha, R.K., Smith, B.D., Sharma, G., Prasad, K., Choudhury, B.C., Sapkota, K., Sharma, R.K. & Behera, S.K. (2000). Status and distribution of the Ganges Susu, Platanista gangetica, in the Ganges River system of India and Nepal. In: R.R. Reeves, B.D. Smith, and T. Kasuya (eds) Biology and Conservation of Freshwater Cetaceans in Asia, pp. 54–61. IUCN Species Survival Commission Occasional Paper No. 23, Gland, Switzerland and Cambridge, UK."),
            tags$hr(style = "border-color:#d3d3d3; background-color: #333; height: 2px"),
            h4(strong("Funding Support to REAL programme, Wildlife Conservation Trust")),
-           p("BNP Paribas Foundation, Duleep Matthai Nature Conservation Trust, International Whaling Commission Small Cetacean Fund, Rohini Nilekani Philanthropies Foundation, DSP HMK Holdings Pvt. Ltd., Dolphin Quest."),
+           div(img(src = "BNPP.png", alt = "BNP Paribas Foundation", height = "80px", width = "auto"),
+               img(src = "DMNCT.png", alt = "Duleep Matthai Nature Conservation Trust", height = "80px", width = "auto"),
+               img(src = "IWC.gif", alt = "International Whaling Commission Small Cetacean Fund", height = "70px", width = "auto"),
+               img(src = "RNP.png", alt = "Rohini Nilekani Philanthropies Foundation", height = "70px", width = "auto"),
+               img(src = "DSP-HMK.png", alt = "DSP HMK Holdings Pvt. Ltd.", height = "70px", width = "auto"),
+               img(src = "DQ.jpg", alt = "Dolphin Quest", height = "70px", width = "auto")),
            h4(strong("Developed by")),
            p("Riverine Ecosystems and Livelihoods programme, Wildlife Conservation Trust."),
            h4(strong("Credits")),
            tags$ul(
              tags$li(strong("Conceptualization and data compilation:"), "Dr. Nachiket Kelkar"),
              tags$li(strong("Data collection, curation, and compilation:"), "Riverine Ecosystems and Livelihoods programme, Wildlife Conservation Trust"),
-             tags$li(strong("App development:"), "S. Ramya Roopa"),
+             tags$li(strong("App development:"), "S. Ramya Roopa")
            ),
            h4(strong("Code Availability")),
-           p("The", tags$i(class = "fab fa-r-project", title = "R Project"), "code for this app is available in",  tags$a(href = "https://github.com/WCT-Riverine-Ecology-And-Livelihoods/GRD-District-Portal.git", "this", target = "_blank"), tags$i(class = "fa-brands fa-github", title="Github"), "repository.")
+           p("The", tags$i(class = "fab fa-r-project", title = "R Project"), "code for this app is available in",  tags$a(href = "https://github.com/WCT-Riverine-Ecology-And-Livelihoods/GangesRiverDolphin-Pop-Tracker.git", "this", target = "_blank"), tags$i(class = "fa-brands fa-github", title="Github"), "repository.")
   )
 )
+
 
 
 server <- function(input, output, session) {
