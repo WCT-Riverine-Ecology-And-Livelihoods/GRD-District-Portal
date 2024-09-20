@@ -19,20 +19,25 @@ grd_table$sd <- round((grd_table$pop_estimate - grd_table$lower_range)/1.965,2)
 grd_table$sd_km <- round(grd_table$sd/grd_table$km, 2)
 grd_table$pop_size <- paste(grd_table$pop_estimate, paste0("(", grd_table$lower_range, "-", grd_table$upper_range, ")"))
   
+##Load shapefiles and add color palette to differentiate districts with and withour GRDs
 bihar_shp <- st_read("Data/Districts_Bihar.shp", stringsAsFactors = F)
 bihar_shp$GRD_presence <- as.factor(ifelse(bihar_shp$DISTRICT %in% unique(grd_table$district), "Present", "Absent"))
 bihar_simple <- rmapshaper::ms_simplify(bihar_shp, keep = 0.05, keep_shapes = TRUE) ##make the leaflet loading faster
 GRD_presence_pal <- leaflet::colorFactor(c("gray37", "#3459e6"), bihar_shp$GRD_presence)
 
+##Prepare table for the 'Database' tab
 dt_table <- grd_table %>% select(c(district, river, year, survey_month, pop_size,
                                    km, encounter_rate, sd_km, status, typepop_survey, data_source))
-colnames(dt_table) <- c("District", "River", "Year", "Survey month", "Population size (Range)", "km", "Encounter rate", 
-                        "SD per km", "Status", "Survey method", "Data source"
+colnames(dt_table) <- c("District", "River", "Year", "Survey month", "Population size (Range)", "River length (km)", "Encounter rate", 
+                        "Standard deviation (per km)", "Status", "Survey method", "Data source"
                         )
-dt_table <- data.frame(dt_table, check.names = FALSE) ##uncheck check.names to allow spaces in column names
+dt_table <- data.frame(dt_table,  row.names = NULL, check.names = FALSE) ##uncheck check.names to allow spaces in column names
+
+##Prepare survey method table for the 'About' tab
 colnames(surveymethod_table) <- c("Survey method", "Interpretation of population and error reported",  "Data quality")
 surveymethod_table <- data.frame(surveymethod_table, check.names = FALSE) ##likewise uncheck for survey method table
 
+##ui
 ui <- page_navbar(
   title = "Ganges River Dolphin Population Tracker: Bihar",
   theme = bs_theme(version = 5, bootswatch = "zephyr")|>
@@ -186,8 +191,7 @@ ui <- page_navbar(
   )
 )
 
-
-
+##Server
 server <- function(input, output, session) {
   data <- reactiveValues(clickedShape = NULL)
   ##Output - Basic map of Bihar
@@ -266,7 +270,7 @@ server <- function(input, output, session) {
     value_box(
       title = NULL,
       class = "nopad",
-      value = tags$p(paste("Distance covered", ":", df_river1()$km[1], "km"), style = "font-size: 100%;"),
+      value = tags$p(paste("River length", ":", df_river1()$km[1], "km"), style = "font-size: 100%;"),
       theme = "secondary",
       max_height = "80px"
     ),
@@ -282,7 +286,7 @@ server <- function(input, output, session) {
     value_box(
       title = NULL,
       class = "nopad",
-      value = tags$p(paste("Distance covered", ":", df_river2()$km[1], "km"), style = "font-size: 100%;"),
+      value = tags$p(paste("River length", ":", df_river2()$km[1], "km"), style = "font-size: 100%;"),
       theme = "secondary",
       max_height = "80px"
     ),
@@ -298,7 +302,7 @@ server <- function(input, output, session) {
     value_box(
       title = NULL,
       class = "nopad",
-      value = tags$p(paste("Distance covered", ":", df_river3()$km[1], "km"), style = "font-size: 100%;"),
+      value = tags$p(paste("River length", ":", df_river3()$km[1], "km"), style = "font-size: 100%;"),
       theme = "secondary",
       max_height = "80px"
     ),
@@ -314,7 +318,7 @@ server <- function(input, output, session) {
     value_box(
       title = NULL,
       class = "nopad",
-      value = tags$p(paste("Distance covered", ":", df_river4()$km[1], "km"), style = "font-size: 100%;"),
+      value = tags$p(paste("River length", ":", df_river4()$km[1], "km"), style = "font-size: 100%;"),
       theme = "secondary",
       max_height = "80px"
     )
@@ -380,17 +384,17 @@ server <- function(input, output, session) {
       }
       })
     
-    output$table <- DT::renderDataTable({
+    output$table <- DT::renderDataTable({ ##use isTruthy to find out if value is truthy i.e it is not FALSE, NULL, "", or an empty vector
       if(is.null(input$selecteddistrict) == FALSE & isTruthy(input$river)){
         dt_table %>% filter(District %in% unlist(input$selecteddistrict)) %>% arrange(River, Year)
       } 
       else if(isTruthy(input$selecteddistrict) & isTruthy(input$river)){
         dt_table %>% filter(District %in% unlist(input$selecteddistrict)) %>%
-          filter(River %in% unlist(input$river)) %>% arrange(River, Year)
-      }
+                     filter(River %in% unlist(input$river)) %>% arrange(River, Year)
+        }
       else {
         dt_table %>% arrange(District, River, Year)
-      } ##isTruthy to find out if value is truthy i.e it is not FALSE, NULL, "" or an empty vector
+      } 
     })
     
     output$surveymethod_table <- shiny::renderTable({surveymethod_table}, 
